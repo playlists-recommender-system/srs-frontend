@@ -6,16 +6,16 @@
     <div class="bg-spotify-dark-gray rounded-lg p-6 mb-8">
       <h2 class="text-2xl font-semibold mb-4">Select Songs</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div v-for="song in paginatedSongs" :key="`${song.artistName}-${song.trackName}`" 
+        <div v-for="song in paginatedSongs" :key="`${song.artist_name}-${song.track_name}`" 
              class="flex items-center space-x-4 p-4 rounded-md hover:bg-spotify-light-gray transition duration-300">
           <input type="checkbox" 
-                 :id="`song-${song.artistName}-${song.trackName}`"
+                 :id="`song-${song.artist_name}-${song.track_name}`"
                  v-model="selectedSongs" 
                  :value="song"
                  class="form-checkbox h-5 w-5 text-spotify-green rounded focus:ring-spotify-green focus:ring-offset-spotify-black">
-          <label :for="`song-${song.artistName}-${song.trackName}`" class="flex-grow cursor-pointer">
-            <div class="font-medium">{{ song.trackName }}</div>
-            <div class="text-spotify-light-gray text-sm">{{ song.artistName }}</div>
+          <label :for="`song-${song.artist_name}-${song.track_name}`" class="flex-grow cursor-pointer">
+            <div class="font-medium">{{ song.track_name }}</div>
+            <div class="text-spotify-light-gray text-sm">{{ song.artist_name }}</div>
           </label>
         </div>
       </div>
@@ -47,12 +47,12 @@
     <div v-if="recommendations.length > 0" class="mt-8 bg-spotify-dark-gray rounded-lg p-6">
       <h2 class="text-2xl font-semibold mb-4">Recommended Songs</h2>
       <ul class="space-y-2">
-        <li v-for="song in recommendations" :key="`${song.artistName}-${song.trackName}`" 
+        <li v-for="song in recommendations" :key="`${song.artist_name}-${song.track_name}`" 
             class="flex items-center space-x-4 p-4 rounded-md hover:bg-spotify-light-gray transition duration-300">
           <MusicIcon class="h-6 w-6 text-spotify-green" />
           <div>
-            <div class="font-medium">{{ song.trackName }}</div>
-            <div class="text-spotify-light-gray text-sm">{{ song.artistName }}</div>
+            <div class="font-medium">{{ song.track_name }}</div>
+            <div class="text-spotify-light-gray text-sm">{{ song.artist_name }}</div>
           </div>
         </li>
       </ul>
@@ -66,16 +66,17 @@ import { ChevronLeftIcon, ChevronRightIcon, MusicIcon } from 'lucide-vue-next'
 
 // Sample song list (replace with your actual song list or API call)
 const songs = ref([
-  { artistName: 'The Beatles', trackName: 'Hey Jude' },
-  { artistName: 'Queen', trackName: 'Bohemian Rhapsody' },
-  { artistName: 'Led Zeppelin', trackName: 'Stairway to Heaven' },
-  { artistName: 'Bob Dylan', trackName: 'Like a Rolling Stone' },
-  { artistName: 'The Rolling Stones', trackName: 'Satisfaction' },
-  { artistName: 'Jimi Hendrix', trackName: 'Purple Haze' },
-  { artistName: 'U2', trackName: 'With or Without You' },
-  { artistName: 'The Eagles', trackName: 'Hotel California' },
-  { artistName: 'Nirvana', trackName: 'Smells Like Teen Spirit' },
-  { artistName: 'David Bowie', trackName: 'Space Oddity' },
+  { artist_name: 'The Beatles', track_name: 'Hey Jude' },
+  { artist_name: 'Queen', track_name: 'Bohemian Rhapsody' },
+  { artist_name: 'Led Zeppelin', track_name: 'Stairway to Heaven' },
+  { artist_name: 'Bob Dylan', track_name: 'Like a Rolling Stone' },
+  { artist_name: 'The Rolling Stones', track_name: 'Satisfaction' },
+  { artist_name: 'Jimi Hendrix', track_name: 'Purple Haze' },
+  { artist_name: 'U2', track_name: 'With or Without You' },
+  { artist_name: 'The Eagles', track_name: 'Hotel California' },
+  { artist_name: 'Nirvana', track_name: 'Smells Like Teen Spirit' },
+  { artist_name: 'David Bowie', track_name: 'Space Oddity' },
+  { artist_name: "Lynyrd Skynyrd", track_name: "Sweet Home Alabama"}
   // Add more songs as needed
 ])
 
@@ -108,19 +109,19 @@ const getRecommendations = async () => {
   console.log('Selected songs:', selectedSongs.value)
   
   // In a real application, you would make an API call here
-  // const response = await fetch('your-api-endpoint', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(selectedSongs.value)
-  // })
-  // const data = await response.json()
-  // recommendations.value = data.recommendations
-
+  const response = await fetch('http://127.0.0.1:8000/recommend', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(selectedSongs.value)
+  })
+  const data = await response.json()
+  recommendations.value = data.recommendations
+  console.log(recommendations.value)
   // For this example, we'll just return a subset of the original songs
-  recommendations.value = songs.value
-    .filter(song => !selectedSongs.value.includes(song))
-    .sort(() => 0.5 - Math.random())
-    .slice(0, 5)
+  // recommendations.value = songs.value
+  // .filter(song => !selectedSongs.value.includes(song))
+  // .sort(() => 0.5 - Math.random())
+  // .slice(0, 5)
 }
 </script>
 
