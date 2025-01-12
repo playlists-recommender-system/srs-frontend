@@ -107,7 +107,7 @@ const nextPage = () => {
 const getRecommendations = async () => {
   // Simulating an API call
   console.log('Selected songs:', selectedSongs.value)
-  
+  console.log(process.env.API_URL)
   // In a real application, you would make an API call here
   const response = await fetch(`${process.env.API_URL}/recommend`, {
     method: 'POST',
