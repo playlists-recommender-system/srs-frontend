@@ -105,11 +105,7 @@ const nextPage = () => {
 
 // Get recommendations (replace with actual API call)
 const getRecommendations = async () => {
-  // Simulating an API call
-  console.log('Selected songs:', selectedSongs.value)
-  console.log('dataset path',process.env.DATASET_PATH)
-  // In a real application, you would make an API call here
-  const response = await fetch(`${process.env.API_URL}/recommend`, {
+  const response = await fetch(`${process.env.VUE_APP_API_URL}/recommend`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(selectedSongs.value)
@@ -117,11 +113,6 @@ const getRecommendations = async () => {
   const data = await response.json()
   recommendations.value = data.recommendations
   console.log(recommendations.value)
-  // For this example, we'll just return a subset of the original songs
-  // recommendations.value = songs.value
-  // .filter(song => !selectedSongs.value.includes(song))
-  // .sort(() => 0.5 - Math.random())
-  // .slice(0, 5)
 }
 </script>
 
