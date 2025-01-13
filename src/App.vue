@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ChevronLeftIcon, ChevronRightIcon, MusicIcon } from 'lucide-vue-next'
 
 // Sample song list (replace with your actual song list or API call)
@@ -103,6 +103,8 @@ const nextPage = () => {
   if (currentPage.value < totalPages.value) currentPage.value++
 }
 
+onMounted(() => {getSongs()})
+
 // Get recommendations (replace with actual API call)
 const getRecommendations = async () => {
   const response = await fetch(`${process.env.VUE_APP_API_URL}/recommend`, {
@@ -113,6 +115,13 @@ const getRecommendations = async () => {
   const data = await response.json()
   recommendations.value = data.recommendations
   console.log(recommendations.value)
+}
+
+// Get Songs
+const getSongs = async () => {
+  const response = await fetch(`${process.env.VUE_APP_API_URL}/tracks`)
+  const data = await response.json()
+  songs.value = data
 }
 </script>
 
