@@ -135,7 +135,7 @@ const getRecommendations = async () => {
 
 const updateModel = async () => {
   const body = {
-    dataset_id: (Number(model_version) % 2 == 0) ? "2023_spotify_ds1.csv" : "2023_spotify_ds2.csv"
+    dataset_id: (Number(model_version.value) % 2 === 0) ? "2023_spotify_ds1.csv" : "2023_spotify_ds2.csv"
   }
   console.log(body)
   const response = await fetch(`${process.env.VUE_APP_API_URL}/update-model`, {
