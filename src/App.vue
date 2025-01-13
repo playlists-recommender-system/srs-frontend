@@ -113,7 +113,7 @@ const getRecommendations = async () => {
     body: JSON.stringify(selectedSongs.value)
   })
   const data = await response.json()
-  recommendations.value = data.recommendations
+  recommendations.value = data.recommendations || []
   console.log(recommendations.value)
 }
 
