@@ -43,6 +43,14 @@
       Get Recommendations
     </button>
     
+    <div class="space" style="margin: 2em;"></div>
+
+    <!-- Update Model Button -->
+    <button @click="updateModel" 
+            class="w-full py-3 rounded-full bg-spotify-light-gray text-spotify-black font-bold text-lg hover:bg-spotify-bright-gray transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+      Update Model
+    </button>
+    
     <!-- Recommendations List -->
     <div v-if="recommendations.length > 0" class="mt-8 bg-spotify-dark-gray rounded-lg p-6">
       <h2 class="text-2xl font-semibold mb-4">Recommended Songs</h2>
@@ -58,30 +66,36 @@
       </ul>
     </div>
   </div>
+
+  <!-- Rodapé exibindo model_date e model_version -->
+  <footer class="mt-8 p-4 bg-spotify-dark-gray text-spotify-light-gray rounded">
+    <p>Model Date: {{ model_date }}</p>
+    <p>Model Version: {{ model_version }}</p>
+  </footer>
+
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ChevronLeftIcon, ChevronRightIcon, MusicIcon } from 'lucide-vue-next'
 
-// Sample song list (replace with your actual song list or API call)
-const songs = ref([
-  { artist_name: 'The Beatles', track_name: 'Hey Jude' },
+
+const songs = ref([])
+
+const staticSongs = [
+  { artist_name: "Lynyrd Skynyrd", track_name: "Sweet Home Alabama"},
   { artist_name: 'Queen', track_name: 'Bohemian Rhapsody' },
-  { artist_name: 'Led Zeppelin', track_name: 'Stairway to Heaven' },
-  { artist_name: 'Bob Dylan', track_name: 'Like a Rolling Stone' },
-  { artist_name: 'The Rolling Stones', track_name: 'Satisfaction' },
-  { artist_name: 'Jimi Hendrix', track_name: 'Purple Haze' },
-  { artist_name: 'U2', track_name: 'With or Without You' },
-  { artist_name: 'The Eagles', track_name: 'Hotel California' },
+  { artist_name: "Guns N' Roses", track_name: "Sweet Child O' Mine" },
+  { artist_name: 'Eagles', track_name: 'Hotel California - Remastered' },
   { artist_name: 'Nirvana', track_name: 'Smells Like Teen Spirit' },
-  { artist_name: 'David Bowie', track_name: 'Space Oddity' },
-  { artist_name: "Lynyrd Skynyrd", track_name: "Sweet Home Alabama"}
-  // Add more songs as needed
-])
+  { artist_name: 'The Eagles', track_name: 'Hotel California' },
+  { artist_name: 'The Rolling Stones', track_name: 'Satisfaction' }
+]
 
 const selectedSongs = ref([])
 const recommendations = ref([])
+const model_date = ref('')
+const model_version = ref('')
 
 // Pagination
 const currentPage = ref(1)
@@ -113,15 +127,51 @@ const getRecommendations = async () => {
     body: JSON.stringify(selectedSongs.value)
   })
   const data = await response.json()
+  model_date.value = formatDateString(data.model_date)
+  model_version.value = data.model_version
   recommendations.value = data.recommendations || []
-  console.log(recommendations.value)
+  console.log(data)
+}
+
+const updateModel = async () => {
+  const body = {
+    dataset_id: (Number(model_version) % 2 == 0) ? "2023_spotify_ds1.csv" : "2023_spotify_ds2.csv"
+  }
+  console.log(body)
+  const response = await fetch(`${process.env.VUE_APP_API_URL}/update-model`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  const data = await response.json()
+  model_date.value = formatDateString(data.model_date)
+  model_version.value = data.model_version
+  recommendations.value = []
 }
 
 // Get Songs
 const getSongs = async () => {
   const response = await fetch(`${process.env.VUE_APP_API_URL}/tracks`)
   const data = await response.json()
-  songs.value = data
+  songs.value = [...staticSongs, ...data.songs]
+  model_date.value = formatDateString(data.model_date)
+  model_version.value = data.model_version
+}
+
+function formatDateString(str) {
+  // "2025-01-13 15:24:24.819387" => "2025-01-13" e "15:24:24.819387"
+  const [datePart, timePart] = str.split(' ');
+
+  // datePart => "2025-01-13"
+  const [year, month, day] = datePart.split('-');
+
+  // timePart => "15:24:24.819387"
+  // se não ligar para milissegundos, pode pegar só os 3 primeiros segmentos
+  const [h, m, sMillis] = timePart.split(':');
+  const s = sMillis.split('.')[0]; // "24" antes do "."
+
+  // Monta no formato "dd/mm/yyyy HH:mm:ss"
+  return `${day}/${month}/${year} ${h}:${m}:${s}`;
 }
 </script>
 
